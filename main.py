@@ -6,10 +6,9 @@ import dash_html_components as html
 import flask
 import glob
 import os
-
-from copy import deepcopy
-
 import plotly.graph_objects as go
+
+server = flask.Flask(__name__)
 
 input_image_directory = './Input/'
 output_image_directory = './Output/'
@@ -19,7 +18,7 @@ list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format
 
 static_image_route = '/static/'
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG],server=server)
 
 zoomed_output_image = None
 zoomed_input_image = None
