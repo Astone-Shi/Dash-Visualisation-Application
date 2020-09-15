@@ -7,8 +7,6 @@ __pycache__/
 *.txt
 *.xlsx
 *.pickle.icloud
-test_src.py
 .env
 *.icloud
-*.png
 *.js

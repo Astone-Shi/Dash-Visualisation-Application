@@ -201,4 +201,5 @@ def serve_output_image(image_path):
 
 
 if __name__ == '__main__':
+    print("Starting App")
     app.run_server(debug=True)
