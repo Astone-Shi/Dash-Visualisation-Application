@@ -4,7 +4,6 @@ __pycache__/
 *.pdf
 *.rdb
 *.csv
-*.txt
 *.xlsx
 *.pickle.icloud
 .env
