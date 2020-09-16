@@ -7,7 +7,7 @@ import flask
 import glob
 import os
 import plotly.graph_objects as go
-
+import base64
 
 input_image_directory = './Input/'
 output_image_directory = './Output/'
@@ -38,6 +38,50 @@ app.layout = html.Div([
             width=6
         )
     ),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                dcc.Upload(
+                    id='upload-input-image',
+                    children=html.Div([
+                        'Drag and Drop Input Image'
+                    ]),
+                    style={
+                        'width': '100%',
+                        'height': '60px',
+                        'lineHeight': '60px',
+                        'borderWidth': '1px',
+                        'borderStyle': 'dashed',
+                        'borderRadius': '5px',
+                        'textAlign': 'center',
+                        'margin': '10px'
+                    },
+                    # Allow multiple files to be uploaded
+                    multiple=True
+                ),
+                html.Div(id='input-image-upload')]), width={'size': 4, 'offset': 1}),
+
+        dbc.Col(
+            html.Div([
+                dcc.Upload(
+                    id='upload-output-image',
+                    children=html.Div([
+                        'Drag and Drop Output Image'
+                    ]),
+                    style={
+                        'width': '100%',
+                        'height': '60px',
+                        'lineHeight': '60px',
+                        'borderWidth': '1px',
+                        'borderStyle': 'dashed',
+                        'borderRadius': '5px',
+                        'textAlign': 'center',
+                        'margin': '10px'
+                    },
+                    # Allow multiple files to be uploaded
+                    multiple=True
+                ),
+                html.Div(id='output-image-upload')]), width={'size': 4, 'offset': 1})]),
     dbc.Row(
         [
             dbc.Col(dcc.Dropdown(
@@ -50,6 +94,7 @@ app.layout = html.Div([
                 id='output_image-dropdown', placeholder='Select Output Image',
                 options=[{'label': i, 'value': i} for i in list_of_output_images]
             ), width={'size': 4, 'offset': 1})], no_gutters=True),
+
 
     dbc.Row([
             dbc.Col(html.Div(
@@ -139,7 +184,8 @@ def update_input__output_image(input_value, output_value):
     if input_value is None or output_value is None:
         raise dash.exceptions.PreventUpdate
     else:
-        return [dcc.Graph(figure=create_image_with_functionality(static_image_route, input_value), id="input_img",config=dict(modeBarButtonsToAdd=['drawline',
+        return [dcc.Graph(figure=create_image_with_functionality(static_image_route, input_value), id="input_img",
+                                                config=dict(modeBarButtonsToAdd=['drawline',
                                                                                 'drawopenpath',
                                                                                 'drawclosedpath',
                                                                                 'drawcircle',
@@ -176,6 +222,33 @@ def update_output_image(relayout_data, output_fig):
     return output_fig
 
 
+@app.callback(dash.dependencies.Output('input-image-upload', 'children'),
+              [dash.dependencies.Input('upload-input-image', 'contents')],
+              [dash.dependencies.State('upload-input-image', 'filename')])
+def update_output(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Input/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        return "Done Saving"
+
+
+@app.callback(dash.dependencies.Output('output-image-upload', 'children'),
+              [dash.dependencies.Input('upload-output-image', 'contents')],
+              [dash.dependencies.State('upload-output-image', 'filename')])
+def update_output(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Output/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        return "Done Saving"
+
 
 # Add a static image route that serves images from desktop
 # Be *very* careful here - you don't want to serve arbitrary files
@@ -199,6 +272,11 @@ def serve_output_image(image_path):
     return flask.send_from_directory(output_image_directory, image_name)
 
 
+
+
 if __name__ == '__main__':
-    print("Starting App")
-    app.run_server(debug=True)
+    while(1):
+        list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
+        list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
+        app.run_server(debug=True)
+
