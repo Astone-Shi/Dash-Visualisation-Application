@@ -281,34 +281,20 @@ def update_output(list_of_contents, file_name):
 # from your computer or server
 @app.server.route('{}<image_path>.png'.format(static_image_route))
 def serve_output_image(image_path):
-    t2 = threading.Thread(target=task_2, name='t1',args=(image_path))
-    t2.start()
+    image_name = '{}.png'.format(image_path)
+    if image_name not in list_of_output_images:
+        raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
+    return flask.send_from_directory(output_image_directory, image_name)
 
     # Add a static image route that serves images from desktop
     # Be *very* careful here - you don't want to serve arbitrary files
     # from your computer or server
 @app.server.route('{}<image_path>.png'.format(static_image_route))
 def serve_input_image(image_path):
-    t3 = threading.Thread(target=task_3, name='t1', args=(image_path))
-    t3.start()
-
-
-def task_3(image_path):
-    while True:
-        image_name = '{}.png'.format(image_path)
-        if image_name not in list_of_input_images:
-            raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
-        time.sleep(10000)
-        return flask.send_from_directory(input_image_directory, image_name)
-
-
-def task_2(image_path):
-    while True:
-        image_name = '{}.png'.format(image_path)
-        if image_name not in list_of_output_images:
-            raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
-        time.sleep(10000)
-        return flask.send_from_directory(output_image_directory, image_name)
+    image_name = '{}.png'.format(image_path)
+    if image_name not in list_of_input_images:
+        raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
+    return flask.send_from_directory(input_image_directory, image_name)
 
 
 def task_1():
