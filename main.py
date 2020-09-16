@@ -316,10 +316,9 @@ def task_1():
         reset_app_layout(list_of_input_images, list_of_output_images)
 
 
-if __name__ == '__main__':
-    t1 = threading.Thread(target=task_1, name='t1')
-    t1.start()
-    app.run_server(debug=True, dev_tools_hot_reload=True)
+t1 = threading.Thread(target=task_1, name='t1')
+t1.start()
+app.run_server(debug=True, dev_tools_hot_reload=True)
 
 
 
