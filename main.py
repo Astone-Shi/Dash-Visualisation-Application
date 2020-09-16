@@ -254,7 +254,96 @@ def task_2(image_path):
             raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
         return flask.send_from_directory(output_image_directory, image_name)
 
+def task_1():
+    while True:
+        list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
+        list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
+        app.layout = html.Div([
+
+            dbc.Row(
+                dbc.Col(html.H3("Input - Output Image visualisation"),
+                        width={'size': 6, 'offset': 3},
+                        ),
+            ),
+
+            dbc.Row(
+                dbc.Col(
+                    html.Div("Select Input Image and Output Image. Zoom in Input, results in auto zoom in output. Annotate,"
+                             "Image using draw rectangle option in the figure."),
+                    width=6
+                )
+            ),
+            dbc.Row([
+                dbc.Col(
+                    html.Div([
+                        dcc.Upload(
+                            id='upload-input-image',
+                            children=html.Div([
+                                'Drag and Drop Input Image'
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin': '10px'
+                            },
+                            # Allow multiple files to be uploaded
+                            multiple=True
+                        ),
+                        html.Div(id='input-image-upload')]), width={'size': 4, 'offset': 1}),
+
+                dbc.Col(
+                    html.Div([
+                        dcc.Upload(
+                            id='upload-output-image',
+                            children=html.Div([
+                                'Drag and Drop Output Image'
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin': '10px'
+                            },
+                            # Allow multiple files to be uploaded
+                            multiple=True
+                        ),
+                        html.Div(id='output-image-upload')]), width={'size': 4, 'offset': 1})]),
+            dbc.Row(
+                [
+                    dbc.Col(dcc.Dropdown(
+                        id='input_image-dropdown', placeholder='Select Input Image',
+                        options=[{'label': i, 'value': i} for i in list_of_input_images],
+                    ), width={'size': 4, 'offset': 1})
+                    ,
+
+                    dbc.Col(dcc.Dropdown(
+                        id='output_image-dropdown', placeholder='Select Output Image',
+                        options=[{'label': i, 'value': i} for i in list_of_output_images]
+                    ), width={'size': 4, 'offset': 1})], no_gutters=True),
+
+            dbc.Row([
+                dbc.Col(html.Div(
+                    children=[dcc.Graph(figure={}, id='input_img')], id='input_image_div'),
+                    width=6, md={'size': 4, "offset": 1}
+                ),
+                dbc.Col(html.Div(
+                    children=[dcc.Graph(figure={}, id='output_img')], id='output_image_div')
+                    , width=6, md={'size': 4, "offset": 1}
+                )
+            ])
+        ])
 
 
 if __name__ == '__main__':
+    t1 = threading.Thread(target=task_1, name='t1')
+    t1.start()
     app.run_server(debug=True, dev_tools_hot_reload=True)
