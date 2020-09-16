@@ -274,8 +274,6 @@ def update_output(list_of_contents, file_name):
         return "Done Saving"
 
 
-
-
 # Add a static image route that serves images from desktop
 # Be *very* careful here - you don't want to serve arbitrary files
 # from your computer or server
@@ -297,17 +295,9 @@ def serve_input_image(image_path):
     return flask.send_from_directory(input_image_directory, image_name)
 
 
-def task_1():
-    while True:
-        list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
-        list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
-        reset_app_layout(list_of_input_images, list_of_output_images)
-        time.sleep(10000)
-
-
-t1 = threading.Thread(target=task_1, name='t1')
-t1.start()
-app.run_server(debug=True, dev_tools_hot_reload=True)
+if __name__ == "__main__":
+    reset_app_layout(list_of_input_images, list_of_output_images)
+    app.run_server(debug=True, dev_tools_hot_reload=True)
 
 
 
