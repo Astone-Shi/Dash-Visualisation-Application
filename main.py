@@ -2,14 +2,11 @@ import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import threading
 import flask
 import glob
 import os
 import plotly.graph_objects as go
 import base64
-import string
-import random
 import time
 
 input_image_directory = './Images/Input/'
