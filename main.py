@@ -42,50 +42,50 @@ def reset_app_layout(list_of_input_images, list_of_output_images):
                 width=6
             )
         ),
-        # dbc.Row([
-        #     dbc.Col(
-        #         html.Div([
-        #             dcc.Upload(
-        #                 id='upload-input-image',
-        #                 children=html.Div([
-        #                     'Drag and Drop Input Image'
-        #                 ]),
-        #                 style={
-        #                     'width': '100%',
-        #                     'height': '60px',
-        #                     'lineHeight': '60px',
-        #                     'borderWidth': '1px',
-        #                     'borderStyle': 'dashed',
-        #                     'borderRadius': '5px',
-        #                     'textAlign': 'center',
-        #                     'margin': '10px'
-        #                 },
-        #                 # Allow multiple files to be uploaded
-        #                 multiple=True
-        #             ),
-        #             html.Div(id='input-image-upload')]), width={'size': 4, 'offset': 1}),
-        #
-        #     dbc.Col(
-        #         html.Div([
-        #             dcc.Upload(
-        #                 id='upload-output-image',
-        #                 children=html.Div([
-        #                     'Drag and Drop Output Image'
-        #                 ]),
-        #                 style={
-        #                     'width': '100%',
-        #                     'height': '60px',
-        #                     'lineHeight': '60px',
-        #                     'borderWidth': '1px',
-        #                     'borderStyle': 'dashed',
-        #                     'borderRadius': '5px',
-        #                     'textAlign': 'center',
-        #                     'margin': '10px'
-        #                 },
-        #                 # Allow multiple files to be uploaded
-        #                 multiple=True
-        #             ),
-        #             html.Div(id='output-image-upload')]), width={'size': 4, 'offset': 1})]),
+        dbc.Row([
+            dbc.Col(
+                html.Div([
+                    dcc.Upload(
+                        id='upload-input-image',
+                        children=html.Div([
+                            'Drag and Drop Input Image'
+                        ]),
+                        style={
+                            'width': '100%',
+                            'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                            'margin': '10px'
+                        },
+                        # Allow multiple files to be uploaded
+                        multiple=True
+                    ),
+                    html.Div(id='input-image-upload')]), width={'size': 4, 'offset': 1}),
+
+            dbc.Col(
+                html.Div([
+                    dcc.Upload(
+                        id='upload-output-image',
+                        children=html.Div([
+                            'Drag and Drop Output Image'
+                        ]),
+                        style={
+                            'width': '100%',
+                            'height': '60px',
+                            'lineHeight': '60px',
+                            'borderWidth': '1px',
+                            'borderStyle': 'dashed',
+                            'borderRadius': '5px',
+                            'textAlign': 'center',
+                            'margin': '10px'
+                        },
+                        # Allow multiple files to be uploaded
+                        multiple=True
+                    ),
+                    html.Div(id='output-image-upload')]), width={'size': 4, 'offset': 1})]),
         dbc.Row(
             [
                 dbc.Col(dcc.Dropdown(
@@ -224,51 +224,51 @@ def update_output_image(relayout_data, output_fig):
         pass
     return output_fig
 
-#
-# @app.callback(dash.dependencies.Output('input-image-upload', 'children'),
-#               [dash.dependencies.Input('upload-input-image', 'contents')],
-#               [dash.dependencies.State('upload-input-image', 'filename')])
-# def update_input(list_of_contents, file_name):
-#     if list_of_contents is not None:
-#         img_data = base64.b64decode(list_of_contents[0].split(',')[1])
-#         temp_name = file_name[0].split('.')
-#         file_name = './Images/Input/' + temp_name[0] + ".png"
-#         with open(file_name, 'wb') as f:
-#             f.write(img_data)
-#
-#         time.sleep(20)
-#
-#         for count, file_name in enumerate(os.listdir("./Images/Input")):
-#             random_string = ''.join(random.choices(string.ascii_uppercase +
-#                                    string.digits, k=3))
-#             dst = "./Images/Input/" + random_string + "-" + file_name
-#             src = "./Images/Input/"+ file_name
-#             os.rename(src,dst)
-#
-#         return "Done Saving"
-#
-#
-# @app.callback(dash.dependencies.Output('output-image-upload', 'children'),
-#               [dash.dependencies.Input('upload-output-image', 'contents')],
-#               [dash.dependencies.State('upload-output-image', 'filename')])
-# def update_output(list_of_contents, file_name):
-#     if list_of_contents is not None:
-#         img_data = base64.b64decode(list_of_contents[0].split(',')[1])
-#         temp_name = file_name[0].split('.')
-#         file_name = './Images/Output/' + temp_name[0] + ".png"
-#         with open(file_name, 'wb') as f:
-#             f.write(img_data)
-#
-#         time.sleep(20)
-#
-#         for count, file_name in enumerate(os.listdir("./Images/Output")):
-#             random_string = ''.join(random.choices(string.ascii_uppercase +
-#                                                    string.digits, k=3))
-#             dst = "./Images/Output/" + random_string + "-" + file_name
-#             src = "./Images/Output/" + file_name
-#             os.rename(src, dst)
-#
-#         return "Done Saving"
+
+@app.callback(dash.dependencies.Output('input-image-upload', 'children'),
+              [dash.dependencies.Input('upload-input-image', 'contents')],
+              [dash.dependencies.State('upload-input-image', 'filename')])
+def update_input(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Images/Input/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        time.sleep(20)
+
+        for count, file_name in enumerate(os.listdir("./Images/Input")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                   string.digits, k=3))
+            dst = "./Images/Input/" + random_string + "-" + file_name
+            src = "./Images/Input/"+ file_name
+            os.rename(src,dst)
+
+        return "Done Saving"
+
+
+@app.callback(dash.dependencies.Output('output-image-upload', 'children'),
+              [dash.dependencies.Input('upload-output-image', 'contents')],
+              [dash.dependencies.State('upload-output-image', 'filename')])
+def update_output(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Images/Output/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        time.sleep(20)
+
+        for count, file_name in enumerate(os.listdir("./Images/Output")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                                   string.digits, k=3))
+            dst = "./Images/Output/" + random_string + "-" + file_name
+            src = "./Images/Output/" + file_name
+            os.rename(src, dst)
+
+        return "Done Saving"
 
 
 # Add a static image route that serves images from desktop
