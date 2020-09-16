@@ -11,16 +11,17 @@ import time
 import random
 import string
 
-input_image_directory = './Input/'
-output_image_directory = './Output/'
+input_image_directory = './Images/Input/'
+output_image_directory = './Images/Output/'
 static_image_route = '/static/'
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG])
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG], assets_folder='./Images/')
 
 server = app.server
 
 zoomed_output_image = None
 zoomed_input_image = None
+
 
 list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
 list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
@@ -292,4 +293,4 @@ def update_output(list_of_contents, file_name):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True,dev_tools_hot_reload=True)
