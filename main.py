@@ -39,7 +39,7 @@ app.layout = html.Div([
             width=6
         )
     ),
-dbc.Row([
+    dbc.Row([
             dbc.Col(
                 html.Div([
                     dcc.Upload(
@@ -243,6 +243,52 @@ def serve_input_image(image_path):
     if image_name not in list_of_input_images:
         raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
     return flask.send_from_directory(input_image_directory, image_name)
+
+
+@app.callback(dash.dependencies.Output('input-image-upload', 'children'),
+              [dash.dependencies.Input('upload-input-image', 'contents')],
+              [dash.dependencies.State('upload-input-image', 'filename')])
+def update_input(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Images/Input/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        time.sleep(20)
+
+        for count, file_name in enumerate(os.listdir("./Images/Input")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                   string.digits, k=3))
+            dst = "./Images/Input/" + random_string + "-" + file_name
+            src = "./Images/Input/"+ file_name
+            os.rename(src,dst)
+
+        return "Done Saving"
+
+
+@app.callback(dash.dependencies.Output('output-image-upload', 'children'),
+              [dash.dependencies.Input('upload-output-image', 'contents')],
+              [dash.dependencies.State('upload-output-image', 'filename')])
+def update_output(list_of_contents, file_name):
+    if list_of_contents is not None:
+        img_data = base64.b64decode(list_of_contents[0].split(',')[1])
+        temp_name = file_name[0].split('.')
+        file_name = './Images/Output/' + temp_name[0] + ".png"
+        with open(file_name, 'wb') as f:
+            f.write(img_data)
+
+        time.sleep(20)
+
+        for count, file_name in enumerate(os.listdir("./Images/Output")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                                   string.digits, k=3))
+            dst = "./Images/Output/" + random_string + "-" + file_name
+            src = "./Images/Output/" + file_name
+            os.rename(src, dst)
+
+        return "Done Saving"
 
 
 if __name__ == "__main__":
