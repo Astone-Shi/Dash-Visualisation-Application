@@ -298,6 +298,7 @@ def task_3(image_path):
         image_name = '{}.png'.format(image_path)
         if image_name not in list_of_input_images:
             raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
+        time.sleep(10000)
         return flask.send_from_directory(input_image_directory, image_name)
 
 
@@ -306,6 +307,7 @@ def task_2(image_path):
         image_name = '{}.png'.format(image_path)
         if image_name not in list_of_output_images:
             raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
+        time.sleep(10000)
         return flask.send_from_directory(output_image_directory, image_name)
 
 
@@ -314,6 +316,7 @@ def task_1():
         list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
         list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
         reset_app_layout(list_of_input_images, list_of_output_images)
+        time.sleep(10000)
 
 
 t1 = threading.Thread(target=task_1, name='t1')
