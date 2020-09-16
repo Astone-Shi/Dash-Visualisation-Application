@@ -8,6 +8,8 @@ import os
 import plotly.graph_objects as go
 import base64
 import time
+import random
+import string
 
 input_image_directory = './Images/Input/'
 output_image_directory = './Images/Output/'
@@ -16,8 +18,6 @@ static_image_route = '/static/'
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG],assets_folder='./Images/')
 
 server = app.server
-app.server.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
 
 zoomed_output_image = None
 zoomed_input_image = None
