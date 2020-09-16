@@ -294,7 +294,7 @@ def serve_input_image(image_path):
 
 if __name__ == "__main__":
     reset_app_layout(list_of_input_images, list_of_output_images)
-    app.run_server(debug=True, dev_tools_hot_reload=True)
+    app.run_server(debug=True)
 
 
 
