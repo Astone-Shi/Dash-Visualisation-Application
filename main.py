@@ -10,6 +10,7 @@ import base64
 import time
 import random
 import string
+import threading
 
 input_image_directory = './Images/Input/'
 output_image_directory = './Images/Output/'
@@ -18,29 +19,28 @@ static_image_route = '/static/'
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG], assets_folder='./Images/')
 
 server = app.server
+app.server.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 zoomed_output_image = None
 zoomed_input_image = None
 
 
-list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
-list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
+def image_layout(list_of_input_images, list_of_output_images):
+    return html.Div([
+        dbc.Row(
+            dbc.Col(html.H3("Input - Output Image visualisation"),
+                    width={'size': 6, 'offset': 3},
+                    ),
+        ),
 
-app.layout = html.Div([
-    dbc.Row(
-        dbc.Col(html.H3("Input - Output Image visualisation"),
-                width={'size': 6, 'offset': 3},
-                ),
-    ),
-
-    dbc.Row(
-        dbc.Col(
-            html.Div("Select Input Image and Output Image. Zoom in Input, results in auto zoom in output. Annotate,"
-                     "Image using draw rectangle option in the figure."),
-            width=6
-        )
-    ),
-    dbc.Row([
+        dbc.Row(
+            dbc.Col(
+                html.Div("Select Input Image and Output Image. Zoom in Input, results in auto zoom in output. Annotate,"
+                         "Image using draw rectangle option in the figure."),
+                width=6
+            )
+        ),
+        dbc.Row([
             dbc.Col(
                 html.Div([
                     dcc.Upload(
@@ -84,33 +84,46 @@ app.layout = html.Div([
                         multiple=True
                     ),
                     html.Div(id='output-image-upload')]), width={'size': 4, 'offset': 1})]),
-    dbc.Row(
-        [
-            dbc.Col(dcc.Dropdown(
-                id='input_image-dropdown', placeholder='Select Input Image',
-                options=[{'label': i, 'value': i} for i in list_of_input_images],
-            ), width={'size': 4, 'offset': 1})
-            ,
+        dbc.Row(
+            [
+                dbc.Col(dcc.Dropdown(
+                    id='input_image-dropdown', placeholder='Select Input Image',
+                    options=[{'label': i, 'value': i} for i in list_of_input_images],
+                ), width={'size': 4, 'offset': 1})
+                ,
 
-            dbc.Col(dcc.Dropdown(
-                id='output_image-dropdown', placeholder='Select Output Image',
-                options=[{'label': i, 'value': i} for i in list_of_output_images]
-            ), width={'size': 4, 'offset': 1})], no_gutters=True),
+                dbc.Col(dcc.Dropdown(
+                    id='output_image-dropdown', placeholder='Select Output Image',
+                    options=[{'label': i, 'value': i} for i in list_of_output_images]
+                ), width={'size': 4, 'offset': 1})], no_gutters=True),
 
-    dbc.Row([
-        dbc.Col(html.Div(
-            children=[dcc.Graph(figure={}, id='input_img')], id='input_image_div'),
-            width=6, md={'size': 4, "offset": 1}
-        ),
-        dbc.Col(html.Div(
-            children=[dcc.Graph(figure={}, id='output_img')], id='output_image_div')
-            , width=6, md={'size': 4, "offset": 1}
-        )
+        dbc.Row([
+            dbc.Col(html.Div(
+                children=[dcc.Graph(figure={}, id='input_img')], id='input_image_div'),
+                width=6, md={'size': 4, "offset": 1}
+            ),
+            dbc.Col(html.Div(
+                children=[dcc.Graph(figure={}, id='output_img')], id='output_image_div')
+                , width=6, md={'size': 4, "offset": 1}
+            )
+        ])
     ])
-])
 
 
-def create_image_with_functionality(static_image_route, value):
+def task_1():
+    while True:
+        list_of_input_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(input_image_directory))]
+        list_of_output_images = [os.path.basename(x) for x in glob.glob('{}*.png'.format(output_image_directory))]
+        app.layout = image_layout(list_of_input_images, list_of_output_images)
+
+
+t1 = threading.Thread(target=task_1)
+t1.start()
+
+def create_image_with_functionality(filename):
+    encoded_image = base64.b64encode(open(filename, 'rb').read())
+    src = 'data:image/png;base64,{}'.format(encoded_image.decode())
+
     # Create figure
     fig = go.Figure()
 
@@ -154,7 +167,7 @@ def create_image_with_functionality(static_image_route, value):
             opacity=1.0,
             layer="below",
             sizing="stretch",
-            source=static_image_route + value)
+            source=src)
     )
 
     # Configure other layout
@@ -185,7 +198,8 @@ def update_input__output_image(input_value, output_value):
     if input_value is None or output_value is None:
         raise dash.exceptions.PreventUpdate
     else:
-        return [dcc.Graph(figure=create_image_with_functionality(static_image_route, input_value), id="input_img",
+        print('./Images/Input/' + input_value)
+        return [dcc.Graph(figure=create_image_with_functionality('./Images/Input/' + input_value), id="input_img",
                           config=dict(modeBarButtonsToAdd=['drawline',
                                                            'drawopenpath',
                                                            'drawclosedpath',
@@ -193,7 +207,7 @@ def update_input__output_image(input_value, output_value):
                                                            'drawrect',
                                                            'eraseshape'
                                                            ]))], \
-               [dcc.Graph(figure=create_image_with_functionality(static_image_route, output_value), id="output_img",
+               [dcc.Graph(figure=create_image_with_functionality('./Images/Output/' + output_value), id="output_img",
                           config=dict(modeBarButtonsToAdd=['drawline',
                                                            'drawopenpath',
                                                            'drawclosedpath',
@@ -223,29 +237,6 @@ def update_output_image(relayout_data, output_fig):
     return output_fig
 
 
-# Add a static image route that serves images from desktop
-# Be *very* careful here - you don't want to serve arbitrary files
-# from your computer or server
-@app.server.route('{}<image_path>.png'.format(static_image_route))
-def serve_output_image(image_path):
-    image_name = '{}.png'.format(image_path)
-    if image_name not in list_of_output_images:
-        raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
-    return flask.send_from_directory(output_image_directory, image_name)
-
-    # Add a static image route that serves images from desktop
-    # Be *very* careful here - you don't want to serve arbitrary files
-    # from your computer or server
-
-
-@app.server.route('{}<image_path>.png'.format(static_image_route))
-def serve_input_image(image_path):
-    image_name = '{}.png'.format(image_path)
-    if image_name not in list_of_input_images:
-        raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
-    return flask.send_from_directory(input_image_directory, image_name)
-
-
 @app.callback(dash.dependencies.Output('input-image-upload', 'children'),
               [dash.dependencies.Input('upload-input-image', 'contents')],
               [dash.dependencies.State('upload-input-image', 'filename')])
@@ -256,6 +247,13 @@ def update_input(list_of_contents, file_name):
         file_name = './Images/Input/' + temp_name[0] + ".png"
         with open(file_name, 'wb') as f:
             f.write(img_data)
+
+        for count, file_name in enumerate(os.listdir("./Images/Input")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                                   string.digits, k=3))
+            dst = "./Images/Input/" + random_string + "-" + file_name
+            src = "./Images/Input/" + file_name
+            os.rename(src, dst)
 
         return "Done Saving"
 
@@ -270,6 +268,13 @@ def update_output(list_of_contents, file_name):
         file_name = './Images/Output/' + temp_name[0] + ".png"
         with open(file_name, 'wb') as f:
             f.write(img_data)
+
+        for count, file_name in enumerate(os.listdir("./Images/Output")):
+            random_string = ''.join(random.choices(string.ascii_uppercase +
+                                                   string.digits, k=3))
+            dst = "./Images/Output/" + random_string + "-" + file_name
+            src = "./Images/Output/" + file_name
+            os.rename(src, dst)
 
         return "Done Saving"
 
